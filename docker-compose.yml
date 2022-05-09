@@ -1,0 +1,38 @@
+version: "3.9"
+   
+services:
+  db:
+    image: postgres
+  #   volumes:
+  #     - ./data/db:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=container
+      - POSTGRES_USER=container
+      - POSTGRES_PASSWORD=container
+    ports:
+    - "5432:5432"
+  web:
+    build: .
+    command: >
+      bash -c " python3 manage.py makemigrations
+      && python3 manage.py migrate
+      && python3 manage.py runserver 0.0.0.0:8000"
+    # volumes:
+    #   - .:/code
+    ports:
+      - "8000:8000"
+    environment:
+      - POSTGRES_NAME=container
+      - POSTGRES_USER=container
+      - POSTGRES_PASSWORD=container
+    depends_on:
+      - db
+  pgadmin:
+    container_name: pgadmin4_container
+    image: dpage/pgadmin4
+    restart: always
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: root
+    ports:
+      - "5050:80"
